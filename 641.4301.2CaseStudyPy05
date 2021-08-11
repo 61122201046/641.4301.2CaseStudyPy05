@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+# Copyright 2010-2021 Google LLC
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Minimal example to call the GLOP solver."""
+# [START program]
+# [START import]
+from ortools.linear_solver import pywraplp
+# [END import]
+
+
+
+solver = pywraplp.Solver.CreateSolver('GLOP')
+
+
+
+infinity = solver.infinity()
+f = solver.NumVar(0.0, infinity, 'f')
+p1 = solver.NumVar(0.0, infinity, 'p1')
+p2 = solver.NumVar(0.0, infinity, 'p2')
+p3 = solver.NumVar(0.0, infinity, 'p3')
+p4 = solver.NumVar(0.0, infinity, 'p4')
+p5 = solver.NumVar(0.0, infinity, 'p5')
+
+print('Number of variables =', solver.NumVariables())
+# [END variables]
+
+# [START constraints]
+solver.Add(f + p1 >= 10)
+solver.Add(f + p1 + p2 >= 12)
+solver.Add(0.5*f + p1 + p2 + p3 >= 14)
+solver.Add(0.5*f + p1 + p2 + p3 +p4 >= 16)
+solver.Add(f + p2 + p3 + p4 + p5 >= 18)
+solver.Add(f + p3 + p4 + p5 >= 17)
+solver.Add(f + p4 + p5 >= 15)
+solver.Add(f + p5 >= 10)
+solver.Add(f <= 12)
+
+print('Number of constraints =', solver.NumConstraints())
+# [END constraints]
+
+# [START objective]
+# Maximize x + 10 * y.
+solver.Minimize(10*f + 7*p2 + 2*p3 +  5*p4)
+# [END objective]
+
+# [START solve]
+status = solver.Solve()
+# [END solve]
+
+# [START print_solution]
+if status == pywraplp.Solver.OPTIMAL:
+    print('Solution:')
+    print('Objective value =', solver.Objective().Value())
+    print('f =', f.solution_value())
+    print('p1 =', p1.solution_value())
+    print('p2 =', p2.solution_value())
+    print('p3 =', p3.solution_value())
+    print('p4 =', p4.solution_value())
+    print('p5 =', p5.solution_value())
+    
+else:
+    print('The problem does not have an optimal solution.')
+# [END print_solution]
+
+# [START advanced]
+print('\nAdvanced usage:')
+print('Problem solved in %f milliseconds' % solver.wall_time())
+print('Problem solved in %d iterations' % solver.iterations())
+# [END advanced]
+
